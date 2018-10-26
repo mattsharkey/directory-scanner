@@ -1,24 +1,20 @@
 <?php
 
-namespace CreativeServices\DirectoryScanner;
+namespace CreativeServices\Filesystem;
 
-class DirectoryScanner implements DirectoryScannerInterface, \OuterIterator
+class DirectoryContents implements DirectoryContentsInterface, \OuterIterator
 {
     private $iterator;
 
     private $path;
 
-    private $pattern;
-
-    public function __construct($path, $pattern = null)
+    public function __construct($path)
     {
         $this->path = $path;
-        if (isset($pattern)) {
-            $this->pattern = $pattern;
-        }
         if (!is_dir($path)) {
             throw new \InvalidArgumentException("Not a directory: $path");
         }
+        $this->makeIterator();
     }
 
     /**
@@ -34,9 +30,6 @@ class DirectoryScanner implements DirectoryScannerInterface, \OuterIterator
      */
     public function getInnerIterator()
     {
-        if (!isset($this->iterator)) {
-            $this->iterator = $this->makeIterator();
-        }
         return $this->iterator;
     }
 
@@ -77,12 +70,7 @@ class DirectoryScanner implements DirectoryScannerInterface, \OuterIterator
     private function makeIterator()
     {
         $dir = new \RecursiveDirectoryIterator($this->path, \RecursiveDirectoryIterator::SKIP_DOTS);
-        $files = new \RecursiveIteratorIterator($dir, \RecursiveIteratorIterator::LEAVES_ONLY);
-        if (isset($this->pattern)) {
-            return new \RegexIterator($files, $this->pattern);
-        } else {
-            return $files;
-        }
+        $this->iterator = new \RecursiveIteratorIterator($dir, \RecursiveIteratorIterator::LEAVES_ONLY);
     }
 
     /**
@@ -101,9 +89,10 @@ class DirectoryScanner implements DirectoryScannerInterface, \OuterIterator
     {
         $root = $this->makePathRoot();
         $path = realpath($path);
-        if (substr($path, 0, strlen($root)) !== $root) {
-            throw new \InvalidArgumentException("Path not in directory: $path");
+        if (substr($path, 0, strlen($root)) === $root) {
+            return substr($path, strlen($root));
+        } else {
+            return $path;
         }
-        return substr($path, strlen($root));
     }
 }
