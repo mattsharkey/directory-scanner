@@ -1,0 +1,10 @@
+{
+  "name": "creativeservices/directory-scanner",
+  "type": "library",
+  "description": "Recursively scan a directory",
+  "autoload": {
+    "psr-4": {
+      "CreativeServices\\DirectoryScanner\\": "src"
+    }
+  }
+}
