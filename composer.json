@@ -1,7 +1,7 @@
 {
-  "name": "creativeservices/directory-scanner",
+  "name": "creativeservices/filesystem",
   "type": "library",
-  "description": "Recursively scan a directory",
+  "description": "Filesystem utilities",
   "autoload": {
     "psr-4": {
       "CreativeServices\\DirectoryScanner\\": "src"
