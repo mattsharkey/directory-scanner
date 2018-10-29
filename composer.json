@@ -4,7 +4,7 @@
   "description": "Filesystem utilities",
   "autoload": {
     "psr-4": {
-      "CreativeServices\\DirectoryScanner\\": "src"
+      "CreativeServices\\Filesystem\\": "src"
     }
   }
 }
