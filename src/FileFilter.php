@@ -6,8 +6,6 @@ class FileFilter extends \FilterIterator implements FileFilterInterface
 {
     private $invalidExtensions;
 
-    private $root;
-
     private $validExtensions;
 
     /**
@@ -24,7 +22,17 @@ class FileFilter extends \FilterIterator implements FileFilterInterface
      */
     public function accept()
     {
-        return $this->isFile() && $this->isInRoot() && !$this->isHidden() && $this->hasValidExtension();
+        return $this->isFile() && !$this->isHidden() && $this->hasValidExtension();
+    }
+
+    public function allowExtensions(array $extensions)
+    {
+        $this->validExtensions = $extensions;
+    }
+
+    public function rejectExtensions(array $extensions)
+    {
+        $this->invalidExtensions = $extensions;
     }
 
     /**
@@ -33,15 +41,7 @@ class FileFilter extends \FilterIterator implements FileFilterInterface
      */
     private function extensionIsIn(array $extensions)
     {
-        return (bool)preg_match($this->current()->getRealPath(), static::makeExtensionPattern($extensions));
-    }
-
-    /**
-     * @return string
-     */
-    private function getPathPrefix()
-    {
-        return rtrim(realpath($this->root), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        return (bool)preg_match(static::makeExtensionPattern($extensions), $this->current()->getPathname());
     }
 
     /**
@@ -74,15 +74,8 @@ class FileFilter extends \FilterIterator implements FileFilterInterface
     private function isHidden()
     {
         $slash = DIRECTORY_SEPARATOR;
-        return (bool)preg_match($slash . $this->current()->getRealPath(), '|' . preg_quote($slash) . '\.|');
-    }
-
-    /**
-     * @return bool
-     */
-    private function isInRoot()
-    {
-        $prefix = $this->getPathPrefix();
-        return substr($this->current()->getRealPath(), 0, strlen($prefix)) === $prefix;
+        $quotedSlash = preg_quote($slash);
+        $pattern = "|{$quotedSlash}\.[^\.{$quotedSlash}]|";
+        return (bool)preg_match($pattern, $slash . $this->current()->getPathname());
     }
 }
